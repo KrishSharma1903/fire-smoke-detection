@@ -6,4 +6,4 @@ matplotlib>=3.7
 pyyaml>=6.0           
 pillow>=10.0          
 jupyter              
-streamlit>=1.40       
+streamlit>=1.50
