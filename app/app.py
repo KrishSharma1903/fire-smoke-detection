@@ -1,5 +1,6 @@
 import tempfile
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import cv2
@@ -19,14 +20,14 @@ st.set_page_config(page_title="Fire and Smoke Detector", layout="wide")
 
 @st.cache_resource
 def load_model():
-    return YOLO(str(WEIGHTS))
+    return YOLO(str(WEIGHTS)), ThreadPoolExecutor(max_workers=1)
 
 
-model = load_model()
+model, worker = load_model()
 
 
 def detect(frame):
-    r = model.predict(frame, conf=0.10, verbose=False)[0]
+    r = worker.submit(model.predict, frame, conf=0.10, verbose=False).result()[0]
     found = []
     for (x1, y1, x2, y2), score, c in zip(r.boxes.xyxy.int().tolist(), r.boxes.conf.tolist(), r.boxes.cls.int().tolist()):
         name = model.names[c]
