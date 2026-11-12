@@ -112,11 +112,18 @@ try:
     seen = set()
     alert_on = False
     n = 0
+    retries = 0
 
     while True:
         ok, frame = cap.read()
         if not ok:
+            if mode == "Live camera" and not Path(str(source)).is_file() and retries < 5:
+                retries += 1
+                cap.release()
+                cap = cv2.VideoCapture(source)
+                continue
             break
+        retries = 0
         found, ms = detect(frame)
         hits = {name for name, _ in found}
         history.append(bool(hits))
